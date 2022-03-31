@@ -1,38 +1,43 @@
 import 'dart:convert';
+
 import 'package:dio/dio.dart';
+
 import '/models/app_data.dart';
 import '/models/reader.dart';
 import '/models/surah.dart';
 
 Future<void> getSurahList() async {
-  var surahJson;
-
+  Response surahJson;
+  var res;
   try {
     surahJson =
-        await Dio().get('https://www.mp3quran.net/api/arabic__sura.json');
+        // await Dio().get('https://www.mp3quran.net/api/arabic__sura.json');
+        await Dio().get('https://mp3quran.net/api/_arabic_sura.json');
+    res = await json.decode(surahJson.data);
   } catch (e) {
     print(e);
   }
 
   AppData.suraList = List.generate(
-    (surahJson.data['Suras_Name'] as List).length,
+    (res['Suras_Name'] as List).length,
     (index) => Surah.fromMap(
-        (surahJson.data['Suras_Name'] as List)[index] as Map<String, dynamic>),
+        (res['Suras_Name'] as List)[index] as Map<String, dynamic>),
   );
 }
 
 Future<void> getReaderList() async {
-  var readersJson;
+  Response readersJson =
+      await Dio().get('https://www.mp3quran.net/api/_arabic.json');
 
-  try {
-    readersJson = await Dio().get('https://www.mp3quran.net/api/_arabic.json');
-  } catch (e) {
-    print(e);
-  }
-
+  // try {
+  //   // readersJson = await Dio().get('https://www.mp3quran.net/api/_arabic.json');
+  // } catch (e) {
+  //   print(e);
+  // }
   // print(readersJson.data);
   // print((jsonDecode(readersJson.data)['reciters'] as List));
   var data = jsonDecode(readersJson.data)['reciters'] as List;
+  // print(data.length);
   AppData.readerList = List.generate(
     data.length,
     (index) => Reader.fromMap(data[index] as Map<String, dynamic>),
